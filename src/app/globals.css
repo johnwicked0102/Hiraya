@@ -1,0 +1,265 @@
+@import "tailwindcss";
+@import "@xyflow/react/dist/style.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Hiraya palette — a sunlit countryside by day, a firefly meadow by night.
+   --------------------------------------------------------------------------- */
+:root {
+  --bg: #f6efdc;          /* cream parchment */
+  --bg-deep: #efe3c4;
+  --surface: #fffaf0;
+  --surface-2: #f8f0dc;
+  --ink: #2c3a2e;         /* deep forest ink */
+  --ink-soft: #5b6b57;
+  --ink-faint: #8b9583;
+  --line: #e3d5b3;
+  --forest: #3f6b45;
+  --forest-deep: #2b4d31;
+  --moss: #7f9f5b;
+  --meadow: #a9c47f;
+  --sky: #9cc7e0;
+  --sky-deep: #5f9cc0;
+  --gold: #e3a740;
+  --sun: #f6cf72;
+  --rose: #d98a7a;
+  --dusk: #7b6a9b;
+  --danger: #b4513c;
+  --ring: #e3a74066;
+  --shadow: 32 40 24;
+  /* scenery */
+  --sky-top: #8fc1de;
+  --sky-mid: #cfe5ea;
+  --horizon: #f7ecd2;
+  --mount-far: #a9c3d3;
+  --mount-near: #87aab6;
+  --hill-1: #b7cf8a;
+  --hill-2: #95b968;
+  --hill-3: #79a154;
+  --hill-4: #5d8a45;
+  --tree-dark: #3f6b3a;
+  --tree-mid: #5b8b47;
+  --tree-light: #82ab5c;
+  --trunk: #6b4b35;
+  --wall: #f4e6c8;
+  --roof: #c4573f;
+  --window: #f6cf72;
+  --cloud: #ffffff;
+  --sunglow: #fff4c9;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #141c22;
+  --bg-deep: #0f161b;
+  --surface: #1c262b;
+  --surface-2: #222e33;
+  --ink: #efe6cf;
+  --ink-soft: #c2bba4;
+  --ink-faint: #8c8a7a;
+  --line: #34424a;
+  --forest: #8fbf88;
+  --forest-deep: #b5d6a8;
+  --moss: #6d8f56;
+  --meadow: #5e7d48;
+  --sky: #2c4a63;
+  --sky-deep: #6fa4c7;
+  --gold: #f0bd5c;
+  --sun: #f3d48a;
+  --rose: #e19c8c;
+  --dusk: #a493c7;
+  --danger: #e2826b;
+  --ring: #f0bd5c55;
+  --shadow: 0 0 0;
+  --sky-top: #0c1626;
+  --sky-mid: #1b2c44;
+  --horizon: #33405a;
+  --mount-far: #2a3a52;
+  --mount-near: #233246;
+  --hill-1: #22382f;
+  --hill-2: #1d3229;
+  --hill-3: #182a22;
+  --hill-4: #13221c;
+  --tree-dark: #0f1d17;
+  --tree-mid: #17291f;
+  --tree-light: #213729;
+  --trunk: #20170f;
+  --wall: #5a5544;
+  --roof: #5e2f2a;
+  --window: #ffd77a;
+  --cloud: #3a4a63;
+  --sunglow: #f3e9c4;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-moss: var(--moss);
+  --color-meadow: var(--meadow);
+  --color-sky: var(--sky);
+  --color-sky-deep: var(--sky-deep);
+  --color-gold: var(--gold);
+  --color-sun: var(--sun);
+  --color-rose: var(--rose);
+  --color-dusk: var(--dusk);
+  --color-danger: var(--danger);
+  --font-display: "Fraunces Variable", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Nunito Variable", "Segoe UI", system-ui, sans-serif;
+}
+
+html {
+  background: var(--bg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem; /* a little larger by default for grandparents */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+
+html.text-large body { font-size: 1.1875rem; }
+
+/* Watercolor paper grain */
+.paper, .card {
+  background-color: var(--surface);
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .45  0 0 0 0 .3  0 0 0 .07 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+.dark .paper, .dark .card {
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 .9  0 0 0 .04 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+
+.card {
+  border-radius: 1.75rem;
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgb(255 255 255 / .6) inset, 0 18px 40px -24px rgb(var(--shadow) / .35);
+}
+.dark .card { box-shadow: 0 18px 40px -24px rgb(0 0 0 / .6); }
+
+.font-display { font-family: var(--font-display); font-optical-sizing: auto; }
+
+.h-display {
+  font-family: var(--font-display);
+  font-weight: 560;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 0.6rem;
+}
+
+::selection { background: var(--sun); color: #2c3a2e; }
+
+/* ---------------------------------------------------------------------------
+   Portrait frames (applied around a cropped photo; the original is untouched)
+   --------------------------------------------------------------------------- */
+.frame { position: relative; overflow: hidden; background: var(--surface-2); }
+.frame-round { border-radius: 9999px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--gold), 0 10px 22px -10px rgb(var(--shadow) / .5); }
+.frame-oval { border-radius: 50% / 42%; box-shadow: 0 0 0 4px var(--surface), 0 0 0 7px #c9a25a, 0 0 0 9px var(--surface), 0 10px 22px -10px rgb(var(--shadow) / .5); }
+.frame-storybook { border-radius: 48% 48% 14px 14px / 34% 34% 14px 14px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--forest), 0 10px 22px -10px rgb(var(--shadow) / .5); }
+.frame-leaf { border-radius: 70% 6% 70% 6%; box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--moss), 0 10px 22px -10px rgb(var(--shadow) / .5); }
+.frame-polaroid { border-radius: 4px; box-shadow: 0 0 0 6px #fffdf7, 0 0 0 7px #e2d7bd, 0 12px 22px -10px rgb(var(--shadow) / .55); transform: rotate(-2deg); }
+.memorial .frame { filter: grayscale(.55) sepia(.2); }
+
+/* ---------------------------------------------------------------------------
+   Ambient motion (clouds, leaves, butterflies, fireflies)
+   Disabled automatically for prefers-reduced-motion or the in-app setting.
+   --------------------------------------------------------------------------- */
+@keyframes drift { from { transform: translateX(-30vw); } to { transform: translateX(130vw); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes leaf-fall {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: .95; }
+  50% { transform: translate3d(9vw, 50vh, 0) rotate(220deg); }
+  100% { transform: translate3d(-4vw, 110vh, 0) rotate(480deg); opacity: 0; }
+}
+@keyframes flutter {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(14vw, -6vh) scale(.95); }
+  50% { transform: translate(28vw, 2vh) scale(1); }
+  75% { transform: translate(42vw, -8vh) scale(.95); }
+  100% { transform: translate(60vw, 0) scale(1); }
+}
+@keyframes wing { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.35); } }
+@keyframes glow {
+  0%, 100% { opacity: 0; transform: translate(0, 0); }
+  20% { opacity: 1; }
+  50% { opacity: .35; transform: translate(14px, -18px); }
+  80% { opacity: 1; transform: translate(-8px, -30px); }
+}
+@keyframes sway { 0%, 100% { transform: rotate(-1.2deg); } 50% { transform: rotate(1.2deg); } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes grow-in { from { stroke-dashoffset: var(--len, 600); } to { stroke-dashoffset: 0; } }
+
+.cloud { animation: drift linear infinite; }
+.bob { animation: bob 6s ease-in-out infinite; }
+.sway { animation: sway 7s ease-in-out infinite; transform-origin: bottom center; }
+.leaf { animation: leaf-fall linear infinite; }
+.butterfly { animation: flutter 26s ease-in-out infinite alternate; }
+.butterfly .wing { animation: wing .35s ease-in-out infinite; transform-origin: center; }
+.firefly { animation: glow ease-in-out infinite; }
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--line) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+.react-flow__edge-path.grow { stroke-dasharray: 600; animation: grow-in 1.2s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .bob, .sway, .leaf, .butterfly, .butterfly .wing, .firefly, .skeleton,
+  .react-flow__edge-path.grow { animation: none !important; }
+  .leaf, .butterfly, .firefly { display: none; }
+}
+html.reduce-motion .cloud, html.reduce-motion .bob, html.reduce-motion .sway,
+html.reduce-motion .butterfly .wing, html.reduce-motion .skeleton,
+html.reduce-motion .react-flow__edge-path.grow { animation: none !important; }
+html.reduce-motion .leaf, html.reduce-motion .butterfly, html.reduce-motion .firefly { display: none; }
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---------------------------------------------------------------------------
+   React Flow — storybook tree canvas
+   --------------------------------------------------------------------------- */
+.hiraya-flow .react-flow__attribution { display: none; }
+.hiraya-flow .react-flow__controls { border-radius: 1rem; overflow: hidden; box-shadow: 0 8px 20px -10px rgb(var(--shadow) / .5); border: 1px solid var(--line); }
+.hiraya-flow .react-flow__controls-button { background: var(--surface); border-bottom: 1px solid var(--line); color: var(--ink); width: 40px; height: 40px; }
+.hiraya-flow .react-flow__controls-button svg { fill: currentColor; max-width: 16px; max-height: 16px; }
+.hiraya-flow .react-flow__controls-button:hover { background: var(--surface-2); }
+.hiraya-flow .react-flow__minimap { border-radius: 1rem; overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+.hiraya-flow .react-flow__handle { opacity: 0; pointer-events: none; }
+
+/* Scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+
+/* Rich text from stories (escaped plain text with line breaks) */
+.prose-story p { margin: 0 0 1em; }
+.prose-story p:first-of-type::first-letter {
+  font-family: var(--font-display);
+  float: left; font-size: 3.2em; line-height: .9; padding: .05em .12em 0 0; color: var(--forest);
+}
+
+@keyframes kenburns { from { transform: scale(1.0) translate(0, 0); } to { transform: scale(1.06) translate(-1%, -1%); } }
+html.reduce-motion [class*="kenburns"] { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { [class*="kenburns"] { animation: none !important; } }
