@@ -20,9 +20,14 @@ type Ctx<B> = {
 type PublicCtx<B> = Omit<Ctx<B>, "viewer"> & { viewer: Viewer | null };
 
 export function clientIp(req: Request): string {
+  // On Vercel `x-real-ip` is set by the platform and cannot be spoofed by the
+  // client, so prefer it for throttling; fall back to the left-most
+  // `x-forwarded-for` entry on other hosts.
+  const real = req.headers.get("x-real-ip");
+  if (real?.trim()) return real.trim();
   const fwd = req.headers.get("x-forwarded-for");
   if (fwd) return fwd.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
+  return "unknown";
 }
 
 /** Reject cross-site state-changing requests (defence in depth on top of SameSite cookies). */

@@ -217,7 +217,7 @@ export function layoutTree(
           strokeWidth: u.partnership ? 2.5 : 2,
           strokeDasharray: ended ? "6 6" : undefined,
         },
-      });
+      } as Edge);
     }
   }
 
@@ -330,5 +330,5 @@ function parentEdge(id: string, source: string, target: string, kind: string): E
       strokeWidth: 2.25,
       strokeDasharray: DASH[kind],
     },
-  };
+  } as Edge;
 }
