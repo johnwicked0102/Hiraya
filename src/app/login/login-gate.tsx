@@ -218,6 +218,11 @@ export function LoginGate({ familyName, expired }: { familyName: string; expired
           )}
         </AnimatePresence>
       </motion.div>
+      {process.env.NEXT_PUBLIC_APP_VERSION && (
+        <p className="fixed bottom-4 right-4 z-50 text-xs font-semibold tracking-wide text-ink-faint/80">
+          Hiraya v{process.env.NEXT_PUBLIC_APP_VERSION}
+        </p>
+      )}
     </div>
   );
 }

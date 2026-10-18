@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import { createRequire } from "node:module";
+
+const { version } = createRequire(import.meta.url)("./package.json") as { version: string };
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -26,6 +29,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ["postgres"],
+  env: { NEXT_PUBLIC_APP_VERSION: version },
   async headers() {
     return [
       {
