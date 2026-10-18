@@ -101,6 +101,7 @@ export async function uploadFile(file: File, opts: UploadOptions = {}): Promise<
         sha256: hash,
         purpose: opts.purpose ?? "memory",
         takenOn: opts.takenOn ?? (file.lastModified ? localDate(file.lastModified) : null),
+        albumId: opts.albumId ?? null,
       },
     },
   );

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { api, HttpError, zDate } from "@/lib/http";
+import { api, HttpError, zDate, zUuid } from "@/lib/http";
 import { sql } from "@/lib/db";
-import { appUrl, createResumableSession, ensureFolder, folderFor } from "@/lib/drive";
+import { appUrl, createResumableSession, ensureFolder, folderFor, folderForAlbum } from "@/lib/drive";
 import { kindForMime, MAX_UPLOAD_BYTES, baseMime } from "@/lib/media";
 
 const Body = z.object({
@@ -11,6 +11,7 @@ const Body = z.object({
   sha256: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
   purpose: z.enum(["memory", "portrait", "cover", "story", "capsule", "logo"]).default("memory"),
   takenOn: zDate,
+  albumId: zUuid.nullable().optional(),
 });
 
 export const POST = api({ level: "contributor", body: Body }, async ({ req, viewer, body }) => {
@@ -33,8 +34,17 @@ export const POST = api({ level: "contributor", body: Body }, async ({ req, view
     values (${viewer.accountId}, ${body.sha256 ?? null}, ${body.fileName}, ${mime}, ${body.size}, ${body.purpose})
     returning id`;
 
+  // Memory uploads filed under an album go into a Drive folder named after that album;
+  // everything else keeps the type/year layout (and portraits/covers their own folder).
+  let albumTitle: string | null = null;
+  if (body.purpose === "memory" && body.albumId) {
+    const [a] = await sql<{ title: string }[]>`select title from albums where id = ${body.albumId}`;
+    albumTitle = a?.title ?? null;
+  }
   const year = body.takenOn ? Number(body.takenOn.slice(0, 4)) : null;
-  const path = body.purpose === "memory" || body.purpose === "story" || body.purpose === "capsule"
+  const path = albumTitle
+    ? folderForAlbum(albumTitle)
+    : body.purpose === "memory" || body.purpose === "story" || body.purpose === "capsule"
     ? folderFor(kind, year)
     : [kind === "image" ? "Photos" : "Documents", "Portraits & Covers"];
   const folderId = await ensureFolder(path);

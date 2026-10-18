@@ -4,8 +4,8 @@ import type { ParentLink, Partnership, PersonLite, TreeData } from "@/lib/types"
 
 export type ViewMode = "all" | "ancestors" | "descendants" | "maternal" | "paternal";
 
-export const PERSON_W = 168;
-export const PERSON_H = 196;
+export const PERSON_W = 190;
+export const PERSON_H = 232;
 const UNION = 18;
 
 export interface PersonNodeData extends Record<string, unknown> {

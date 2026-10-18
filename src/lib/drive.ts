@@ -207,6 +207,13 @@ export function folderFor(kind: string, year: number | null): string[] {
   return year ? [top, String(year)] : [top, "Undated"];
 }
 
+/** A single album folder directly under the archive root, e.g. ["Summer Reunion 2024"]. */
+export function folderForAlbum(title: string): string[] {
+  // Drive forbids a literal slash in a folder name; everything else is fine. Keep it tidy and non-empty.
+  const name = title.replace(/[\\/]+/g, " ").replace(/\s+/g, " ").trim().slice(0, 120) || "Untitled album";
+  return [name];
+}
+
 // ---------------------------------------------------------------------------
 // Files
 // ---------------------------------------------------------------------------

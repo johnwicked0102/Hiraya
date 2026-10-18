@@ -4,8 +4,8 @@ import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { motion } from "motion/react";
 import { ChevronDown, ChevronUp, Heart, Flower } from "lucide-react";
 import { Portrait } from "@/components/portrait";
-import { cn, lifespan, shortName } from "@/lib/utils";
-import type { PersonNodeData } from "./layout";
+import { cn, fullName, formatDate, yearOf } from "@/lib/utils";
+import { PERSON_H, PERSON_W, type PersonNodeData } from "./layout";
 import type { Partnership } from "@/lib/types";
 
 export const PersonNode = memo(function PersonNode({ data, selected }: NodeProps) {
@@ -17,8 +17,9 @@ export const PersonNode = memo(function PersonNode({ data, selected }: NodeProps
       initial={{ opacity: 0, scale: 0.6, y: 18 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 140, damping: 16, delay: Math.min(d.generation * 0.08, 0.6) }}
+      style={{ width: PERSON_W, height: PERSON_H }}
       className={cn(
-        "group relative flex h-[196px] w-[168px] cursor-pointer flex-col items-center rounded-[1.6rem] px-2 pb-2 pt-3 text-center transition",
+        "group relative flex cursor-pointer flex-col items-center rounded-[1.6rem] px-2 pb-2 pt-3 text-center transition",
         "border bg-surface/95 backdrop-blur-sm",
         selected ? "border-gold shadow-[0_0_0_4px_var(--ring),0_18px_30px_-16px_rgb(var(--shadow)/.6)]" : "border-line shadow-[0_14px_26px_-18px_rgb(var(--shadow)/.55)] hover:-translate-y-0.5",
         p.isDeceased && "memorial",
@@ -27,13 +28,25 @@ export const PersonNode = memo(function PersonNode({ data, selected }: NodeProps
       <Handle type="target" position={Position.Top} isConnectable={false} />
       {d.isFocus && <span className="absolute -top-2.5 rounded-full bg-gold px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#2c2310]">Focus</span>}
       {d.isSelf && !d.isFocus && <span className="absolute -top-2.5 rounded-full bg-forest px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">You</span>}
-      <Portrait person={p} size={92} thumb={240} />
-      <div className="mt-3 w-full px-1">
-        <p className="line-clamp-2 font-display text-[1.02rem] font-semibold leading-tight text-ink">{shortName(p)}</p>
-        <p className="mt-0.5 flex items-center justify-center gap-1 text-xs font-semibold text-ink-faint">
-          {p.isDeceased && <Flower className="size-3" aria-label="In loving memory" />}
-          {lifespan(p)}
-        </p>
+      <Portrait person={p} size={88} thumb={240} />
+      <div className="mt-2.5 w-full px-1">
+        <p className="line-clamp-2 font-display text-[0.98rem] font-semibold leading-tight text-ink">{fullName(p)}</p>
+        {p.birthDate && (
+          <p className="mt-1 text-[0.72rem] font-semibold leading-tight text-ink-soft">
+            Born {formatDate(p.birthDate, p.birthDatePrecision, "short")}
+          </p>
+        )}
+        {p.isDeceased ? (
+          <p className="mt-1 flex items-center justify-center gap-1 text-[0.72rem] font-bold leading-tight text-moss">
+            <Flower className="size-3 shrink-0" aria-hidden />
+            {yearOf(p.deathDate) ? `In loving memory · ${yearOf(p.deathDate)}` : "In loving memory"}
+          </p>
+        ) : (
+          <p className="mt-1 flex items-center justify-center gap-1.5 text-[0.72rem] font-bold leading-tight text-forest">
+            <span className="size-2 shrink-0 rounded-full bg-forest" aria-hidden />
+            Living
+          </p>
+        )}
       </div>
       {d.childCount > 0 && onToggle && (
         <button

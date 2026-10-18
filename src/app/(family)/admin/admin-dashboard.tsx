@@ -533,7 +533,7 @@ function SettingsTab({ settings, people, recentImages, onChanged }: { settings: 
         </div>
         <div>
           <p className="mb-2 text-sm font-bold text-ink-soft">Featured photograph on the home page</p>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
             {recentImages.slice(0, 15).map((id) => (
               <button key={id} type="button" onClick={() => { setF({ ...f, featuredMediaId: id }); save({ featuredMediaId: id }); }}
                 className={cn("overflow-hidden rounded-xl ring-gold", f.featuredMediaId === id && "ring-4")}>
@@ -541,7 +541,7 @@ function SettingsTab({ settings, people, recentImages, onChanged }: { settings: 
                 <img src={mediaUrl(id, { thumb: 160 })} alt="" className="aspect-square w-full object-cover" loading="lazy" />
               </button>
             ))}
-            {!recentImages.length && <p className="col-span-5 text-sm text-ink-faint">Share photos in the Memory Garden first.</p>}
+            {!recentImages.length && <p className="col-span-3 text-sm text-ink-faint sm:col-span-5">Share photos in the Memory Garden first.</p>}
           </div>
           {f.featuredMediaId && <Button variant="ghost" size="sm" className="mt-2" onClick={() => { setF({ ...f, featuredMediaId: null }); save({ featuredMediaId: null }); }}>Use the latest photo automatically</Button>}
         </div>
