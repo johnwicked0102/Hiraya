@@ -128,7 +128,7 @@ export function LoginGate({ familyName, expired }: { familyName: string; expired
 
   return (
     <div className="relative z-10 w-full max-w-md">
-      <div className="absolute -top-14 right-0"><ThemeToggle className="bg-surface/70 backdrop-blur" /></div>
+      <div className="fixed right-4 top-4 z-50"><ThemeToggle className="bg-surface/70 backdrop-blur" /></div>
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

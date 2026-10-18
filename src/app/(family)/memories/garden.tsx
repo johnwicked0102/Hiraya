@@ -156,8 +156,8 @@ export function MemoryGarden({ initial, albums: initialAlbums, people, initialFi
           <Button variant="ghost" size="sm" onClick={() => apply({ album: undefined })}>← All memories</Button>
           {viewer.canEditTree && (
             <Button variant="ghost" size="sm" className="text-danger" onClick={async () => {
-              if (!confirm(`Remove the album “${activeAlbum.title}”? The photos stay in the garden.`)) return;
-              try { await api(`/api/albums/${activeAlbum.id}`, { method: "DELETE" }); toast("Album removed"); apply({ album: undefined }); refresh(); }
+              if (!confirm(`Remove the album “${activeAlbum.title}” and its ${activeAlbum.mediaCount} ${activeAlbum.mediaCount === 1 ? "memory" : "memories"}? They leave the garden, but the originals stay in Google Drive's trash for 30 days where an admin can recover them.`)) return;
+              try { await api(`/api/albums/${activeAlbum.id}`, { method: "DELETE" }); toast("Album and its memories removed"); apply({ album: undefined }); refresh(); }
               catch (e) { toast(e instanceof ApiError ? e.message : "Couldn't remove album", "error"); }
             }}>Remove album</Button>
           )}

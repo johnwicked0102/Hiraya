@@ -3,13 +3,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ReactFlow, ReactFlowProvider, Background, Controls, MiniMap, useReactFlow, getNodesBounds, getViewportForBounds,
+  ReactFlow, ReactFlowProvider, Background, Controls, MiniMap, useReactFlow, useUpdateNodeInternals,
+  getNodesBounds, getViewportForBounds,
   type Node, type NodeMouseHandler,
 } from "@xyflow/react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Search, UserPlus, FileImage, FileText, Crosshair, ChevronsDownUp, ChevronsUpDown, X, BookUser,
-  ArrowUpFromLine, ArrowDownToLine, Heart, Users, Link2, Pencil,
+  ArrowUpFromLine, ArrowDownToLine, Heart, Users, Link2, Pencil, Unlink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Field } from "@/components/ui/field";
@@ -69,10 +70,19 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
   const [searchOpen, setSearchOpen] = useState(false);
   const [form, setForm] = useState<{ open: boolean; person?: PersonFull | null; relation?: Relation | null }>({ open: false });
   const [linkOpen, setLinkOpen] = useState(false);
+  const [unlinkedOpen, setUnlinkedOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const ix = useMemo(() => buildIndexes(tree), [tree]);
   const generations = useMemo(() => generationsOf(tree), [tree]);
+
+  // People who exist but aren't connected to anyone yet.
+  const unlinked = useMemo(() => {
+    const linked = new Set<string>();
+    for (const l of tree.parents) { linked.add(l.parentId); linked.add(l.childId); }
+    for (const p of tree.partnerships) { linked.add(p.personA); linked.add(p.personB); }
+    return tree.persons.filter((p) => !linked.has(p.id));
+  }, [tree]);
   const toggle = useCallback((id: string) => {
     setCollapsed((c) => {
       const n = new Set(c);
@@ -95,6 +105,17 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
     const t = setTimeout(() => rf.fitView({ padding: 0.18, duration: 650, maxZoom: 1.1 }), 60);
     return () => clearTimeout(t);
   }, [mode, focus, rf, collapsed.size]);
+
+  // Nodes spring in from a smaller scale, so React Flow first measures their
+  // handles mid-animation and edges attach to the wrong spots. Re-measure once
+  // the entrance animation has settled so the connecting lines line up.
+  const updateNodeInternals = useUpdateNodeInternals();
+  useEffect(() => {
+    const ids = nodes.map((n) => n.id);
+    const remeasure = () => ids.forEach((id) => updateNodeInternals(id));
+    const timers = [120, 450, 800, 1300].map((ms) => setTimeout(remeasure, ms));
+    return () => timers.forEach(clearTimeout);
+  }, [nodes, updateNodeInternals]);
 
   const refresh = useCallback(async (selectId?: string) => {
     const t = await api<TreeData>("/api/persons");
@@ -273,6 +294,12 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
             onClick={() => setCollapsed(new Set(tree.persons.filter((p) => (generations.get(p.id) ?? 0) === 1).map((p) => p.id)))}><ChevronsDownUp /></Button>
           <Button variant="secondary" size="icon" title="Save as image" aria-label="Save as image" onClick={() => exportImage("png")} disabled={exporting}><FileImage /></Button>
           <Button variant="secondary" size="icon" title="Save as PDF" aria-label="Save as PDF" onClick={() => exportImage("pdf")} disabled={exporting}><FileText /></Button>
+          {unlinked.length > 0 && (
+            <Button variant="secondary" size="icon" className="relative" title={`${unlinked.length} not yet connected`} aria-label={`${unlinked.length} people not yet connected`} onClick={() => setUnlinkedOpen(true)}>
+              <Unlink />
+              <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-gold px-1 text-[11px] font-extrabold leading-none text-[#2c2310]">{unlinked.length}</span>
+            </Button>
+          )}
           {viewer.canEditTree && (
             <Button onClick={() => setForm({ open: true, person: null, relation: null })}><UserPlus /> <span className="hidden sm:inline">Add member</span></Button>
           )}
@@ -337,7 +364,43 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
         onSaved={(id) => refresh(id)}
       />
       {sel && <LinkRelativeDialog open={linkOpen} onOpenChange={setLinkOpen} person={sel} people={tree.persons} onLinked={() => refresh(sel.id)} />}
+      <UnlinkedPeopleDialog
+        open={unlinkedOpen}
+        onOpenChange={setUnlinkedOpen}
+        people={unlinked}
+        onPick={(id) => { setUnlinkedOpen(false); centerOn(id); }}
+      />
     </div>
+  );
+}
+
+function UnlinkedPeopleDialog({ open, onOpenChange, people, onPick }: {
+  open: boolean; onOpenChange: (o: boolean) => void; people: PersonLite[]; onPick: (id: string) => void;
+}) {
+  const sorted = useMemo(() => [...people].sort((a, b) => fullName(a).localeCompare(fullName(b))), [people]);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange} title="Not yet connected"
+      description="These family members are in the tree but aren't linked to anyone yet. Pick one to find them, then add a relationship.">
+      {sorted.length === 0 ? (
+        <p className="py-4 text-center text-sm text-ink-soft">Everyone is connected. 🌳</p>
+      ) : (
+        <ul className="max-h-[22rem] space-y-1 overflow-y-auto">
+          {sorted.map((p) => (
+            <li key={p.id}>
+              <button type="button" onClick={() => onPick(p.id)}
+                className="flex w-full items-center gap-3 rounded-2xl p-2 text-left hover:bg-surface-2">
+                <Portrait person={p} size={40} thumb={96} frame="round" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-bold leading-tight">{fullName(p)}</span>
+                  <span className="text-sm text-ink-faint">{lifespan(p) || "No dates yet"}</span>
+                </span>
+                <Crosshair className="size-4 shrink-0 text-gold" aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Dialog>
   );
 }
 

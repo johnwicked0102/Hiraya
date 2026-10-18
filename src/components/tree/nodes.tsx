@@ -14,9 +14,9 @@ export const PersonNode = memo(function PersonNode({ data, selected }: NodeProps
   const onToggle = (d as unknown as { onToggle?: (id: string) => void }).onToggle;
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.6, y: 18 }}
+      initial={{ opacity: 0, scale: 0.92, y: 8 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 140, damping: 16, delay: Math.min(d.generation * 0.08, 0.6) }}
+      transition={{ type: "spring", stiffness: 160, damping: 18, delay: Math.min(d.generation * 0.06, 0.4) }}
       style={{ width: PERSON_W, height: PERSON_H }}
       className={cn(
         "group relative flex cursor-pointer flex-col items-center rounded-[1.6rem] px-2 pb-2 pt-3 text-center transition",

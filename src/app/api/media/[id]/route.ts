@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { api, HttpError, zDate, zText, zUuid } from "@/lib/http";
 import { sql } from "@/lib/db";
@@ -39,8 +40,13 @@ export const PATCH = api({ level: "contributor", body: Patch }, async ({ viewer,
 export const DELETE = api({ level: "contributor" }, async ({ viewer, params }) => {
   const m = await loadOwned(params.id!, viewer);
   await sql`update media set deleted_at = now() where id = ${m.id}`;
+  // If this was the featured photo, stop featuring it.
+  await sql`update settings set value = 'null'::jsonb, updated_at = now()
+            where key = 'featured_media_id' and value = ${sql.json(m.id)}`;
   // Moved to Drive's trash (recoverable for 30 days) — never permanently deleted by the app.
   await trashFile(m.driveFileId).catch((e) => console.error("[media] trash failed", e));
   await logActivity({ accountId: viewer.accountId, action: "media.removed", entityType: "media", entityId: m.id, summary: `Removed “${m.fileName}” (moved to Drive trash)` });
+  revalidatePath("/home");
+  revalidatePath("/memories");
   return { ok: true };
 });

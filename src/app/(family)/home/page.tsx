@@ -27,7 +27,11 @@ export default async function HomePage() {
   ]);
   const gens = computeGenerations(tree);
   const generationCount = tree.persons.length ? Math.max(...gens.values()) + 1 : 0;
-  const featured = settings.featuredMediaId ?? media.items.find((m) => m.kind === "image")?.id ?? null;
+  // Only honour the chosen featured photo while it still exists; otherwise fall back to the latest image.
+  const featuredAlive = settings.featuredMediaId
+    ? (await sql<{ id: string }[]>`select id from media where id = ${settings.featuredMediaId} and deleted_at is null`)[0]?.id ?? null
+    : null;
+  const featured = featuredAlive ?? media.items.find((m) => m.kind === "image")?.id ?? null;
   const recent = [...tree.persons].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? "")).slice(0, 6);
   const me = viewer.personId ? tree.persons.find((p) => p.id === viewer.personId) : null;
   return (
