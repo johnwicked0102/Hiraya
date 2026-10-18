@@ -12,9 +12,11 @@ function createClient() {
   const url = process.env.DATABASE_URL;
   const ssl = process.env.DATABASE_SSL === "disable" ? false : ("require" as const);
   return postgres(url ?? "postgres://localhost:5432/hiraya", {
-    max: Number(process.env.DATABASE_POOL_SIZE ?? 5),
+    // Serverless: keep one connection per function invocation so many concurrent
+    // invocations (e.g. nav prefetches) don't exhaust Supabase's pooler.
+    max: Number(process.env.DATABASE_POOL_SIZE ?? 1),
     idle_timeout: 20,
-    connect_timeout: 15,
+    connect_timeout: 10,
     prepare: false, // required for Supabase / PgBouncer transaction pooling
     ssl,
     transform: postgres.camel,
