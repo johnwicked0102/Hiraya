@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/migrate.mjs",
     "db:seed-demo": "node scripts/migrate.mjs --seed-demo",
+    "db:reset": "node scripts/reset-data.mjs",
+    "db:reset-factory": "node scripts/reset-data.mjs --factory",
     "backup": "node scripts/backup.mjs",
     "admin:reset": "node scripts/reset-admin.mjs"
   },
