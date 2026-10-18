@@ -12,10 +12,18 @@ function createClient() {
   const url = process.env.DATABASE_URL;
   const ssl = process.env.DATABASE_SSL === "disable" ? false : ("require" as const);
   return postgres(url ?? "postgres://localhost:5432/hiraya", {
-    // Serverless: keep one connection per function invocation so many concurrent
-    // invocations (e.g. nav prefetches) don't exhaust Supabase's pooler.
-    max: Number(process.env.DATABASE_POOL_SIZE ?? 1),
-    idle_timeout: 20,
+    // Serverless: a small pool per instance. With max=1, pages that run many
+    // queries in parallel (e.g. /admin) queue everything on one socket.
+    max: Number(process.env.DATABASE_POOL_SIZE ?? 3),
+    // Supabase's transaction pooler (Supavisor/PgBouncer) can stall when several
+    // queries are pipelined on one connection — send one at a time.
+    // (Supported at runtime, missing from postgres.js' typings.)
+    ...({ max_pipeline: 1 } as object),
+    // Drop idle sockets quickly and recycle old ones: a frozen Vercel instance
+    // can come back holding a dead TCP connection that would hang forever.
+    idle_timeout: 10,
+    max_lifetime: 60 * 5,
+    keep_alive: 10,
     connect_timeout: 10,
     prepare: false, // required for Supabase / PgBouncer transaction pooling
     ssl,
