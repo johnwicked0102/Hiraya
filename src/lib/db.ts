@@ -48,8 +48,47 @@ function createClient() {
   });
 }
 
-const g = globalThis as unknown as { __hirayaSql?: ReturnType<typeof createClient> };
-export const sql = g.__hirayaSql ?? createClient();
-if (process.env.NODE_ENV !== "production") g.__hirayaSql = sql;
+type Client = ReturnType<typeof createClient>;
 
-export type Sql = typeof sql;
+/**
+ * Vercel freezes function instances between requests. While frozen, timers
+ * (idle_timeout, keepalive) don't run, but Supabase's pooler drops the idle TCP
+ * connection. The next request then writes into a dead socket and the query
+ * hangs until the 300s function timeout. See:
+ * https://supabase.com/docs/guides/troubleshooting/troubleshooting-connect_timeout-or-hanging-queries-in-vercel-serverless-functions-775f92
+ *
+ * So: when the client hasn't been touched for a few seconds (long enough that
+ * the instance may have been frozen), retire it and open fresh connections.
+ * Within a request, queries run back-to-back, so they share one client.
+ */
+const STALE_AFTER_MS = Number(process.env.DATABASE_STALE_MS ?? 3_000);
+
+const holder = globalThis as unknown as { __hirayaDb?: { client: Client; lastUsed: number } };
+
+function current(): Client {
+  const now = Date.now();
+  const h = holder.__hirayaDb;
+  if (!h) {
+    holder.__hirayaDb = { client: createClient(), lastUsed: now };
+  } else if (now - h.lastUsed > STALE_AFTER_MS) {
+    // Idle (possibly dead) sockets close now; in-flight work such as a long
+    // backup gets up to the function limit to finish. Not awaited: a dead
+    // socket must never block the new request.
+    h.client.end({ timeout: 290 }).catch(() => {});
+    h.client = createClient();
+  }
+  holder.__hirayaDb!.lastUsed = now;
+  return holder.__hirayaDb!.client;
+}
+
+/** Tagged-template SQL client; always delegates to a live postgres.js client. */
+export const sql = new Proxy(function () {} as unknown as Client, {
+  apply: (_t, _this, args) => (current() as unknown as (...a: unknown[]) => unknown)(...args),
+  get: (_t, prop) => {
+    const c = current();
+    const v = Reflect.get(c, prop, c);
+    return typeof v === "function" ? v.bind(c) : v;
+  },
+}) as Client;
+
+export type Sql = Client;
