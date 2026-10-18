@@ -80,13 +80,39 @@ export function Countryside({ variant = "home", align = "bottom", className }: {
         </g>
 
         {variant === "gate" && (
-          /* cozy cottage with a curl of chimney smoke */
+          /* a swing hung from the family tree, and birds heading home */
+          <g>
+            <g style={{ stroke: "var(--trunk)" }} strokeWidth="3" strokeLinecap="round">
+              <line x1="1104" y1="548" x2="1101" y2="628" />
+              <line x1="1134" y1="548" x2="1137" y2="628" />
+              <line x1="1097" y1="628" x2="1141" y2="628" strokeWidth="6" />
+            </g>
+            {personFig(1119, 626, 20)}
+            <g stroke="var(--trunk)" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.6" className="bob" style={{ animationDuration: "9s" }}>
+              <path d="M360 182 Q 374 170 388 182 Q 402 170 416 182" />
+              <path d="M468 150 Q 479 141 490 150 Q 501 141 512 150" />
+              <path d="M250 228 Q 261 219 272 228 Q 283 219 294 228" />
+            </g>
+          </g>
+        )}
+
+        {variant === "gate" && (
+          /* cozy cottage with warm, lit windows and a curl of chimney smoke */
           <g transform="translate(300 600)">
+            {/* warm light pooling out from home */}
+            <ellipse cx="60" cy="92" rx="112" ry="56" fill="url(#sunglow)" opacity="0.55" />
             <rect x="0" y="40" width="130" height="80" rx="6" style={f("--wall")} />
             <path d="M-14 46 L65 -10 L144 46 Z" style={f("--roof")} />
             <rect x="96" y="-12" width="16" height="34" style={f("--trunk")} />
-            <rect x="20" y="62" width="26" height="24" rx="4" style={f("--window")} />
+            {/* glowing attic + front windows with little panes */}
+            <circle cx="65" cy="26" r="9" style={f("--window")} />
+            <circle cx="65" cy="26" r="9" fill="none" stroke="var(--roof)" strokeWidth="2" opacity="0.5" />
+            <rect x="18" y="60" width="28" height="26" rx="4" style={f("--window")} />
+            <rect x="31" y="60" width="2" height="26" style={f("--roof")} opacity="0.45" />
+            <rect x="18" y="72" width="28" height="2" style={f("--roof")} opacity="0.45" />
+            {/* door left ajar, warm light spilling onto the step */}
             <rect x="84" y="70" width="28" height="50" rx="12" style={f("--trunk")} />
+            <rect x="99" y="74" width="11" height="46" rx="5" style={f("--window")} opacity="0.9" />
             <path className="bob" d="M104 -20 C 90 -40, 120 -54, 104 -76 C 94 -90, 116 -100, 110 -118" stroke="var(--cloud)" strokeWidth="7" strokeLinecap="round" fill="none" opacity="0.7" />
           </g>
         )}
@@ -113,6 +139,43 @@ export function Countryside({ variant = "home", align = "bottom", className }: {
 
         <path style={f("--hill-4")} d="M0 820 C 300 780, 520 830, 800 830 S 1300 790, 1600 820 L1600 900 L0 900 Z" />
 
+        {variant === "gate" && (
+          /* a family walking home together, hand in hand, with their dog */
+          <g>
+            {/* warm pool of light they walk through */}
+            <ellipse cx="742" cy="864" rx="172" ry="74" fill="url(#sunglow)" opacity="0.5" />
+            {/* picnic blanket + basket resting on the lawn */}
+            <g transform="translate(150 848)">
+              <path d="M0 22 L118 8 L130 42 L10 58 Z" style={f("--rose")} opacity="0.92" />
+              <path d="M24 13 L34 48 M60 10 L70 45 M96 11 L104 44 M4 34 L126 20" stroke="var(--wall)" strokeWidth="2" opacity="0.4" />
+              <rect x="52" y="2" width="26" height="18" rx="4" style={f("--trunk")} />
+              <path d="M52 4 Q 65 -10 78 4" fill="none" stroke="var(--trunk)" strokeWidth="3" />
+            </g>
+            {/* lanterns lighting the way */}
+            {[[618, 826], [980, 842]].map(([lx, ly], i) => (
+              <g key={i} transform={`translate(${lx} ${ly})`}>
+                <circle cx="0" cy="-6" r="16" fill="url(#sunglow)" opacity="0.9" />
+                <rect x="-2.5" y="-6" width="5" height="40" rx="2" style={f("--trunk")} />
+                <circle cx="0" cy="-6" r="6" style={f("--window")} />
+              </g>
+            ))}
+            {/* the family, holding hands */}
+            <path d="M688 862 L714 864 M714 864 L738 864 M738 864 L766 862" stroke="var(--trunk)" strokeWidth="3" strokeLinecap="round" opacity="0.75" />
+            {personFig(688, 884, 38)}
+            {personFig(714, 884, 23)}
+            {personFig(738, 884, 23)}
+            {personFig(766, 884, 36)}
+            {/* their little dog */}
+            <g style={f("--trunk")}>
+              <ellipse cx="794" cy="879" rx="11" ry="6" />
+              <circle cx="804" cy="873" r="4.5" />
+              <rect x="787" y="879" width="2.6" height="8" />
+              <rect x="799" y="879" width="2.6" height="8" />
+              <path d="M783 875 Q 777 872 780 882" fill="none" stroke="var(--trunk)" strokeWidth="2.5" />
+            </g>
+          </g>
+        )}
+
         {/* meadow flowers */}
         <g>
           {[[90,850],[180,872],[420,860],[560,880],[1180,860],[1320,876],[1460,848],[1530,880],[980,880],[260,840]].map(([x,y],i)=>(
@@ -121,5 +184,18 @@ export function Countryside({ variant = "home", align = "bottom", className }: {
         </g>
       </svg>
     </div>
+  );
+}
+
+/** A simple rounded silhouette of a person — tall for grown-ups, short for children. */
+function personFig(x: number, y: number, h: number) {
+  const r = h * 0.19;
+  const headCy = y - h + r;
+  const bodyTop = headCy + r * 1.25;
+  return (
+    <g style={{ fill: "var(--trunk)" }}>
+      <circle cx={x} cy={headCy} r={r} />
+      <path d={`M${x - h * 0.2} ${y} Q ${x - h * 0.26} ${bodyTop} ${x} ${bodyTop} Q ${x + h * 0.26} ${bodyTop} ${x + h * 0.2} ${y} Z`} />
+    </g>
   );
 }
