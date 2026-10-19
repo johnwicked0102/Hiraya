@@ -97,6 +97,10 @@ function current(): Client {
  * fresh to us but is already dead.
  */
 const QUERY_TIMEOUT_MS = Number(process.env.DATABASE_QUERY_TIMEOUT_MS ?? 15_000);
+// Reads normally finish well under a second, so a read stuck this long is on a
+// dead connection: give up early and replay it, instead of making the page
+// wait the full QUERY_TIMEOUT_MS first. The replay gets the full timeout.
+const READ_FIRST_TIMEOUT_MS = Number(process.env.DATABASE_READ_TIMEOUT_MS ?? 4_000);
 const QUERY_RETRIES = Number(process.env.DATABASE_QUERY_RETRIES ?? 1);
 
 const TIMED_OUT = Symbol("db-timeout");
@@ -147,15 +151,16 @@ function guard<Q extends PromiseLike<unknown>>(q0: Q, args: unknown[]): Q {
       const fresh = (current() as unknown as (...a: unknown[]) => PromiseLike<unknown>)(...args);
       fresh.then(res, rej);
     };
+    const limit = isRead && n < QUERY_RETRIES ? Math.min(READ_FIRST_TIMEOUT_MS, QUERY_TIMEOUT_MS) : QUERY_TIMEOUT_MS;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const timeout = new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(TIMED_OUT), QUERY_TIMEOUT_MS);
+      timer = setTimeout(() => reject(TIMED_OUT), limit);
     });
     return Promise.race([new Promise(exec), timeout])
       .finally(() => {
         clearTimeout(timer);
         const ms = Date.now() - t0;
-        if (ms > 3_000 && ms < QUERY_TIMEOUT_MS) console.warn(`[db] slow query ${ms}ms: ${label}`);
+        if (ms > 3_000 && ms < limit) console.warn(`[db] slow query ${ms}ms: ${label}`);
       })
       .catch((e) => {
         const timedOut = e === TIMED_OUT;
@@ -167,7 +172,7 @@ function guard<Q extends PromiseLike<unknown>>(q0: Q, args: unknown[]): Q {
         }
         if (timedOut) {
           retireClient();
-          console.error(`[db] query timed out after ${QUERY_TIMEOUT_MS / 1000}s: ${label}`);
+          console.error(`[db] query timed out after ${limit / 1000}s: ${label}`);
           throw new Error("The database took too long to respond. Please try again.");
         }
         throw e;

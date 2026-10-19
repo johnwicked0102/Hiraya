@@ -44,6 +44,6 @@ export const getSettings = cache(async (): Promise<FamilySettings> => {
 
 export async function setSetting(key: keyof typeof KEY_MAP, value: unknown) {
   await sql`
-    insert into settings (key, value, updated_at) values (${key}, ${sql.json(value as never)}, now())
+    insert into settings (key, value, updated_at) values (${key}, ${JSON.stringify(value ?? null)}::jsonb, now())
     on conflict (key) do update set value = excluded.value, updated_at = now()`;
 }
