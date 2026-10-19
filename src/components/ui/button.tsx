@@ -13,10 +13,12 @@ const variants: Record<Variant, string> = {
   danger: "bg-danger text-white hover:brightness-110",
   gold: "bg-gold text-[#2c2310] shadow-[0_8px_18px_-10px_rgb(180_120_30/.8)] hover:brightness-105 hover:-translate-y-px",
 };
+// Text sizes use a minimum height (not a fixed one) so a long label that wraps
+// on a narrow phone grows the button instead of spilling out of it.
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-3.5 text-sm rounded-xl gap-1.5",
-  md: "h-11 px-5 rounded-2xl gap-2",
-  lg: "h-14 px-7 text-lg rounded-2xl gap-2.5",
+  sm: "min-h-9 py-1.5 px-3.5 text-sm rounded-xl gap-1.5",
+  md: "min-h-11 py-2 px-5 rounded-2xl gap-2",
+  lg: "min-h-14 py-3 px-7 text-lg rounded-2xl gap-2.5",
   icon: "h-11 w-11 rounded-2xl",
 };
 
@@ -34,7 +36,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         ref={ref}
         className={cn(
-          "inline-flex select-none items-center justify-center font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-55 [&_svg]:size-[1.15em] [&_svg]:shrink-0",
+          "inline-flex select-none items-center justify-center text-center leading-tight font-semibold transition-all duration-200 disabled:pointer-events-none disabled:opacity-55 [&_svg]:size-[1.15em] [&_svg]:shrink-0",
           variants[variant],
           sizes[size],
           className,

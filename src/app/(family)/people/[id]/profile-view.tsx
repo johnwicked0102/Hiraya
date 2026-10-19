@@ -148,9 +148,9 @@ export function ProfileView({ person, tree, media, albums, stories, events, gree
       <div className="mx-auto -mt-24 max-w-6xl px-4 sm:px-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left">
           <Portrait person={p} size={168} thumb={800} />
-          <div className="flex-1 pb-2">
+          <div className="min-w-0 flex-1 pb-2">
             {p.isDeceased && <p className="mb-1 flex items-center justify-center gap-2 text-sm font-extrabold uppercase tracking-[0.15em] text-dusk sm:justify-start"><Flower className="size-4" /> In loving memory</p>}
-            <h1 className="h-display text-4xl sm:text-5xl">{fullName(p)}</h1>
+            <h1 className="h-display break-words text-4xl sm:text-5xl">{fullName(p)}</h1>
             <p className="mt-1 text-lg text-ink-soft">
               {p.nickname && <span className="font-display italic">“{p.nickname}” · </span>}
               {p.maidenName && <span>née {p.maidenName} · </span>}
@@ -190,7 +190,7 @@ export function ProfileView({ person, tree, media, albums, stories, events, gree
 
         <div className="py-8">
           {tab === "Life story" && (
-            <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="space-y-6">
                 {p.isDeceased && p.memorialMessage && (
                   <blockquote className="card border-l-4 border-l-dusk p-6 font-display text-xl italic leading-relaxed text-ink">{p.memorialMessage}</blockquote>

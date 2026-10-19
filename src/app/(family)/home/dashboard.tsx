@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { UserPlus, Upload, PenLine, Hourglass, Cake, Heart, Flower, Sparkles, ArrowRight, Images, Users, Layers, BookOpen, ShieldAlert } from "lucide-react";
@@ -19,6 +19,8 @@ const CMETA = {
   event: { icon: Sparkles, color: "var(--forest)" },
 } as const;
 
+const W = 520, H = 360; // TreePreview's drawing space; portraits are placed in these units
+
 function TreePreview({ tree, generations }: { tree: TreeData; generations: Record<string, number> }) {
   // Oldest generations become the roots and trunk; the youngest fill the canopy.
   const rows = useMemo(() => {
@@ -26,18 +28,29 @@ function TreePreview({ tree, generations }: { tree: TreeData; generations: Recor
     for (const p of tree.persons) m.set(generations[p.id] ?? 0, [...(m.get(generations[p.id] ?? 0) ?? []), p]);
     return [...m.entries()].sort((a, b) => a[0] - b[0]).slice(-4).map(([, ps]) => ps.slice(0, 6));
   }, [tree, generations]);
-  const W = 520, H = 360;
+  // Portraits are sized in px, so shrink them with the box on narrow screens to keep the composition intact.
+  const box = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => e && setScale(Math.min(1, e.contentRect.width / W)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const placed: { p: PersonLite; x: number; y: number; r: number }[] = [];
   rows.forEach((ps, ri) => {
     const y = H - 70 - ri * ((H - 120) / Math.max(1, rows.length - 1 || 1));
-    const spread = 120 + ri * 70;
+    const r = ri === 0 ? 30 : 26;
+    // Keep every portrait fully inside the drawing (the uncapped spread reached past both edges).
+    const spread = Math.min(120 + ri * 70, W / 2 - r - 4);
     ps.forEach((p, i) => {
       const x = W / 2 + (ps.length === 1 ? 0 : (i / (ps.length - 1) - 0.5) * spread * 2 * (ri === 0 ? 0.6 : 1));
-      placed.push({ p, x, y: y + (i % 2 ? -10 : 8), r: ri === 0 ? 30 : 26 });
+      placed.push({ p, x, y: y + (i % 2 ? -10 : 8), r });
     });
   });
   return (
-    <div className="relative mx-auto aspect-[52/36] w-full max-w-[520px]">
+    <div ref={box} className="relative mx-auto aspect-[52/36] w-full max-w-[520px]">
       <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full" aria-hidden>
         <ellipse cx={W / 2} cy={H - 20} rx="200" ry="18" fill="var(--moss)" opacity="0.35" />
         <path d={`M${W / 2 - 22} ${H - 20} C ${W / 2 - 16} ${H - 120}, ${W / 2 - 30} ${H - 170}, ${W / 2 - 90} ${H - 230} M${W / 2 + 22} ${H - 20} C ${W / 2 + 16} ${H - 120}, ${W / 2 + 30} ${H - 170}, ${W / 2 + 100} ${H - 240} M${W / 2} ${H - 20} C ${W / 2} ${H - 140}, ${W / 2 + 4} ${H - 220}, ${W / 2} ${H - 300}`}
@@ -52,7 +65,7 @@ function TreePreview({ tree, generations }: { tree: TreeData; generations: Recor
         <motion.div key={p.id} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${(x / W) * 100}%`, top: `${(y / H) * 100}%` }}
           initial={{ opacity: 0, scale: 0.4 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", stiffness: 140, delay: 0.3 + i * 0.06 }}>
           <Link href={`/people/${p.id}`} title={shortName(p)} className="block transition hover:scale-110">
-            <Portrait person={p} size={r * 2} thumb={160} frame="round" />
+            <Portrait person={p} size={Math.round(r * 2 * scale)} thumb={160} frame="round" />
           </Link>
         </motion.div>
       ))}
@@ -81,7 +94,7 @@ export function Dashboard(props: {
         <Countryside variant="home" />
         <Ambient leaves={6} butterflies={2} fireflies={20} />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-bg" />
-        <div className="relative mx-auto grid max-w-7xl gap-6 px-4 pb-20 pt-14 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:pt-20">
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 pb-20 pt-14 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:pt-20">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}>
             <p className="inline-block rounded-full bg-surface/80 px-4 py-1.5 text-sm font-bold text-forest-deep backdrop-blur">{props.greeting}, {props.name} 🌿</p>
             <h1 className="h-display mt-4 text-5xl text-ink drop-shadow-[0_1px_0_rgb(255_255_255/.4)] sm:text-6xl">The {props.familyName} Family</h1>
@@ -102,7 +115,7 @@ export function Dashboard(props: {
 
       <div className="relative z-10 mx-auto -mt-10 max-w-7xl space-y-10 px-4 pb-16 sm:px-6">
         {viewer.role === "admin" && !viewer.isAdmin && (
-          <div className="flex items-center gap-3 rounded-3xl bg-gold/20 p-4 font-semibold">
+          <div className="flex flex-wrap items-center gap-3 rounded-3xl bg-gold/20 p-4 font-semibold">
             <ShieldAlert className="size-5 shrink-0 text-gold" />
             <span>You&apos;re signed in with a family code. Admin tools need your password and authenticator.</span>
             <Button size="sm" className="ml-auto" asChild><Link href="/admin-login?next=/admin">Admin sign-in</Link></Button>
@@ -128,14 +141,14 @@ export function Dashboard(props: {
         {/* Quick actions */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {quick.map((q) => (
-            <Link key={q.label} href={q.href} className={cn("group flex items-center gap-3 rounded-3xl p-5 font-bold transition hover:-translate-y-0.5", q.tone)}>
+            <Link key={q.label} href={q.href} className={cn("group flex flex-col items-start gap-2 rounded-3xl p-4 font-bold leading-snug transition hover:-translate-y-0.5 sm:flex-row sm:items-center sm:gap-3 sm:p-5", q.tone)}>
               <span className="grid size-11 place-items-center rounded-2xl bg-surface/80"><q.icon className="size-5 text-forest" /></span>
               {q.label}
             </Link>
           ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           {/* Featured photo */}
           <section className="card overflow-hidden">
             {props.featuredMediaId ? (
@@ -180,7 +193,7 @@ export function Dashboard(props: {
 
         {/* Latest memories */}
         <section>
-          <div className="mb-4 flex items-end justify-between"><h2 className="h-display text-3xl">Freshly bloomed</h2><Link href="/memories" className="font-bold text-forest hover:underline">Memory Garden →</Link></div>
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-1"><h2 className="h-display text-2xl sm:text-3xl">Freshly bloomed</h2><Link href="/memories" className="whitespace-nowrap font-bold text-forest hover:underline">Memory Garden →</Link></div>
           {props.latest.length === 0 ? <div className="card p-10 text-center text-ink-soft">Photos and videos the family shares will appear here.</div> : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {props.latest.slice(0, 8).map((m, i) => (
@@ -201,7 +214,7 @@ export function Dashboard(props: {
         {/* Recently added */}
         {props.recent.length > 0 && (
           <section>
-            <h2 className="h-display mb-4 text-3xl">New branches</h2>
+            <h2 className="h-display mb-4 text-2xl sm:text-3xl">New branches</h2>
             <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2">
               {props.recent.map((p) => (
                 <Link key={p.id} href={`/people/${p.id}`} className="card flex w-40 shrink-0 flex-col items-center p-4 text-center transition hover:-translate-y-1">

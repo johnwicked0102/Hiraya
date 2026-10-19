@@ -42,13 +42,15 @@ function normDate(v: string, precision: string) {
 function DateInput({ value, precision, onChange, onPrecision }: { value: string; precision: string; onChange: (v: string) => void; onPrecision: (p: string) => void }) {
   const display = precision === "year" ? value.slice(0, 4) : precision === "month" ? value.slice(0, 7) : value;
   return (
-    <div className="flex gap-2">
+    // Browser date pickers won't shrink below ~9.5rem, so on narrow screens the
+    // precision picker wraps under the date instead of pushing out of the dialog.
+    <div className="flex flex-wrap gap-2">
       {precision === "year" ? (
-        <Input inputMode="numeric" placeholder="YYYY" maxLength={4} value={display} onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))} />
+        <Input inputMode="numeric" placeholder="YYYY" maxLength={4} value={display} onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))} className="min-w-[9.5rem] flex-1" />
       ) : (
-        <Input type={precision === "month" ? "month" : "date"} value={display} onChange={(e) => onChange(e.target.value)} />
+        <Input type={precision === "month" ? "month" : "date"} value={display} onChange={(e) => onChange(e.target.value)} className="min-w-[9.5rem] flex-1" />
       )}
-      <Select value={precision} onChange={(e) => onPrecision(e.target.value)} className="w-36 shrink-0" aria-label="How exact is this date?">
+      <Select value={precision} onChange={(e) => onPrecision(e.target.value)} className="w-36 grow sm:grow-0" aria-label="How exact is this date?">
         <option value="day">Exact day</option>
         <option value="month">Month only</option>
         <option value="year">Year only</option>
@@ -184,14 +186,14 @@ export function PersonForm({
         </div>
 
         <div className={section}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2">
             <Field label="Born"><DateInput value={f.birthDate} precision={f.birthDatePrecision} onChange={(v) => set("birthDate", v)} onPrecision={(p) => set("birthDatePrecision", p)} /></Field>
             <Field label="Birthplace"><Input value={f.birthPlace} onChange={(e) => set("birthPlace", e.target.value)} placeholder="Town, province, country" /></Field>
           </div>
           <Checkbox label="This family member has passed away" checked={f.isDeceased} onChange={(e) => set("isDeceased", e.target.checked)} />
           {f.isDeceased && (
             <>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-2">
                 <Field label="Passed away"><DateInput value={f.deathDate} precision={f.deathDatePrecision} onChange={(v) => set("deathDate", v)} onPrecision={(p) => set("deathDatePrecision", p)} /></Field>
                 <Field label="Place"><Input value={f.deathPlace} onChange={(e) => set("deathPlace", e.target.value)} /></Field>
               </div>
@@ -223,7 +225,8 @@ export function PersonForm({
         )}
 
         {error && <p role="alert" className="rounded-2xl bg-danger/10 px-4 py-3 text-sm font-semibold text-danger">{error}</p>}
-        <div className="sticky bottom-0 -mx-1 flex justify-end gap-2 bg-gradient-to-t from-surface via-surface to-transparent px-1 pt-4">
+        {/* Stick to the dialog's outer edge (through its p-6 / sm:p-8 padding) so fields don't show through below the buttons. */}
+        <div className="sticky -bottom-6 -mx-1 -mb-6 flex justify-end gap-2 bg-gradient-to-t from-surface via-surface to-transparent px-1 pb-6 pt-4 sm:-bottom-8 sm:-mb-8 sm:pb-8">
           <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button type="submit" loading={busy}>{person ? "Save changes" : "Add to the tree"}</Button>
         </div>

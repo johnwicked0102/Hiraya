@@ -43,7 +43,7 @@ export function AppShell({ children, familyName, logoMediaId }: { children: Reac
   ];
 
   return (
-    <div className="min-h-dvh pb-24 md:pb-0">
+    <div className="min-h-dvh pb-24 lg:pb-0">
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-xl focus:bg-surface focus:px-4 focus:py-2">Skip to content</a>
       <header className="sticky top-0 z-40 border-b border-line/70 bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
@@ -56,13 +56,14 @@ export function AppShell({ children, familyName, logoMediaId }: { children: Reac
             )}
             <span className="flex flex-col leading-none">
               <span className="h-display text-xl">Hiraya</span>
-              <span className="mt-0.5 hidden text-xs font-semibold text-ink-soft sm:block">The {familyName} family</span>
+              <span className="mt-0.5 hidden text-xs font-semibold text-ink-soft sm:block lg:hidden xl:block">The {familyName} family</span>
             </span>
           </Link>
-          <nav className="ml-4 hidden flex-1 items-center gap-1 lg:flex" aria-label="Main">
+          {/* Compact between lg and xl so all seven labels fit on one line at 1024px. */}
+          <nav className="ml-2 hidden flex-1 items-center gap-0.5 lg:flex xl:ml-4 xl:gap-1" aria-label="Main">
             {NAV.map((n) => (
               <Link key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
-                className={cn("relative rounded-xl px-3 py-2 text-[0.95rem] font-bold transition", active(n.href) ? "text-forest-deep" : "text-ink-soft hover:text-ink")}>
+                className={cn("relative whitespace-nowrap rounded-xl px-2.5 py-2 text-sm font-bold transition xl:px-3 xl:text-[0.95rem]", active(n.href) ? "text-forest-deep" : "text-ink-soft hover:text-ink")}>
                 {active(n.href) && <motion.span layoutId="nav-pill" className="absolute inset-0 -z-10 rounded-xl bg-meadow/30" transition={{ type: "spring", stiffness: 380, damping: 32 }} />}
                 {n.label}
               </Link>
@@ -70,8 +71,8 @@ export function AppShell({ children, familyName, logoMediaId }: { children: Reac
           </nav>
           <div className="ml-auto flex items-center gap-1">
             {viewer.role === "admin" && (
-              <Link href="/admin" className={cn("hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold md:flex", active("/admin") ? "bg-gold/25 text-ink" : "text-ink-soft hover:text-ink")}>
-                <ShieldCheck className="size-4" /> Admin
+              <Link href="/admin" title="Admin" className={cn("hidden items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-bold md:flex", active("/admin") ? "bg-gold/25 text-ink" : "text-ink-soft hover:text-ink")}>
+                <ShieldCheck className="size-4" /> <span className="lg:sr-only xl:not-sr-only">Admin</span>
               </Link>
             )}
             <ThemeToggle />
@@ -87,8 +88,8 @@ export function AppShell({ children, familyName, logoMediaId }: { children: Reac
 
       <main id="main" className="relative">{children}</main>
 
-      {/* Mobile bottom navigation: large targets for every age */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden" aria-label="Main">
+      {/* Phone & tablet bottom navigation (the top nav only fits from lg up): large targets for every age */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden" aria-label="Main">
         <div className="grid grid-cols-5">
           {NAV.filter((n) => MOBILE_PRIMARY.includes(n.href)).map((n) => (
             <Link key={n.href} href={n.href} aria-current={active(n.href) ? "page" : undefined}
@@ -105,9 +106,9 @@ export function AppShell({ children, familyName, logoMediaId }: { children: Reac
 
       <AnimatePresence>
         {more && (
-          <motion.div className="fixed inset-0 z-50 bg-black/35 md:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMore(false)}>
+          <motion.div className="fixed inset-0 z-50 bg-black/35 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMore(false)}>
             <motion.div
-              className="card absolute inset-x-2 bottom-2 p-4"
+              className="card absolute inset-x-2 bottom-2 mx-auto max-w-lg p-4"
               initial={{ y: 40 }} animate={{ y: 0 }} exit={{ y: 40 }}
               onClick={(e) => e.stopPropagation()}
             >

@@ -79,7 +79,7 @@ export function StoryEditor({ people, initial }: {
       <PageHeader eyebrow="Family Stories & Legacy" title={initial ? "Edit story" : "Write a story"} subtitle={k.hint} />
       <form onSubmit={save} className="space-y-6">
         <div className="card space-y-5 p-6">
-          <div className="grid gap-4 sm:grid-cols-[1fr_240px]">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_240px]">
             <Field label="Title"><Input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} required autoFocus placeholder="e.g. How Lolo Ben crossed the river in 1952" /></Field>
             <Field label="Kind">
               <Select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}>

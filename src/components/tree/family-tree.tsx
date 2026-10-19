@@ -59,6 +59,18 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
   const router = useRouter();
   const rf = useReactFlow();
   const wrapRef = useRef<HTMLDivElement>(null);
+  // The toolbar floats over the canvas (and wraps to two rows on phones), so
+  // fit the tree below it rather than letting it hide the oldest generation.
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const [toolbarBottom, setToolbarBottom] = useState(72);
+  useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setToolbarBottom(el.offsetTop + el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const fitPadding = useMemo(() => ({ top: `${toolbarBottom + 16}px`, x: "12%", bottom: "14%" }) as const, [toolbarBottom]);
 
   const [tree, setTree] = useState(initial);
   const defaultFocus = viewer.personId && initial.persons.some((p) => p.id === viewer.personId) ? viewer.personId : rootPersonId ?? initial.persons[0]?.id ?? null;
@@ -102,9 +114,9 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
 
   // Re-fit when the view changes.
   useEffect(() => {
-    const t = setTimeout(() => rf.fitView({ padding: 0.18, duration: 650, maxZoom: 1.1 }), 60);
+    const t = setTimeout(() => rf.fitView({ padding: fitPadding, duration: 650, maxZoom: 1.1 }), 60);
     return () => clearTimeout(t);
-  }, [mode, focus, rf, collapsed.size]);
+  }, [mode, focus, rf, collapsed.size, fitPadding]);
 
   // Nodes spring in from a smaller scale, so React Flow first measures their
   // handles mid-animation and edges attach to the wrong spots. Re-measure once
@@ -217,7 +229,7 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
   }
 
   return (
-    <div className="relative h-[calc(100dvh-4rem-5.5rem)] min-h-[520px] md:h-[calc(100dvh-4rem)]">
+    <div className="relative h-[calc(100dvh-4rem-5.5rem)] min-h-[520px] overflow-hidden lg:h-[calc(100dvh-4rem)]">
       {/* painted sky behind the canvas */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-10%,var(--sky-mid),transparent_60%),linear-gradient(to_bottom,var(--bg),var(--bg-deep))]" />
 
@@ -237,7 +249,7 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
             minZoom={0.08}
             maxZoom={2}
             fitView
-            fitViewOptions={{ padding: 0.18, maxZoom: 1.1 }}
+            fitViewOptions={{ padding: fitPadding, maxZoom: 1.1 }}
             proOptions={{ hideAttribution: true }}
             onlyRenderVisibleElements={nodes.length > 150}
           >
@@ -250,8 +262,9 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
       </div>
 
       {/* Toolbar */}
-      <div className="absolute inset-x-3 top-3 z-10 flex flex-wrap items-start gap-2 sm:inset-x-5 sm:top-5">
-        <div className="relative w-full sm:w-72">
+      <div ref={toolbarRef} className="absolute inset-x-3 top-3 z-10 flex flex-wrap items-start gap-2 sm:inset-x-5 sm:top-5">
+        {/* Search shares the first row with the view picker on phones; buttons take the second. */}
+        <div className="relative min-w-0 flex-1 basis-40 sm:w-72 sm:flex-none sm:basis-auto">
           <Search className="pointer-events-none absolute left-4 top-1/2 z-10 size-5 -translate-y-1/2 text-ink-faint" />
           <Input
             value={query}
@@ -315,7 +328,7 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 40 }}
             transition={{ type: "spring", stiffness: 260, damping: 28 }}
-            className="card absolute bottom-3 right-3 top-auto z-20 w-[calc(100%-1.5rem)] max-w-sm p-5 sm:bottom-auto sm:right-5 sm:top-24"
+            className="card absolute bottom-3 right-3 top-auto z-20 max-h-[calc(100%-1.5rem)] w-[calc(100%-1.5rem)] max-w-sm overflow-y-auto p-5 sm:bottom-auto sm:right-5 sm:top-24 sm:max-h-[calc(100%-7.5rem)]"
             aria-label={`${fullName(sel)} details`}
           >
             <button className="absolute right-3 top-3 rounded-full p-2 text-ink-soft hover:bg-surface-2" onClick={() => setSelected(null)} aria-label="Close"><X className="size-5" /></button>

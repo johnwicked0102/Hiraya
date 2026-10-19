@@ -102,7 +102,7 @@ export function CalendarView({ sources, people, today }: { sources: Source[]; pe
           {viewer.canContribute && <Button onClick={() => setEventOpen(true)}><Plus /> Add an event</Button>}
         </>} />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="card p-4 sm:p-6">
           <div className="mb-4 flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => move(-1)} aria-label="Previous month"><ChevronLeft /></Button>

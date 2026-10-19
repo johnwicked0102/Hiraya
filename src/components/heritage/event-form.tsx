@@ -88,7 +88,7 @@ export function EventForm({ open, onOpenChange, people, initial, defaults, onSav
   return (
     <Dialog open={open} onOpenChange={onOpenChange} title={f.id ? "Edit event" : "Add a moment"} description="Reunions, milestones, achievements, or moments in history that touched the family." wide>
       <form onSubmit={save} className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_200px]">
           <Field label="What happened?"><Input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} required autoFocus placeholder="e.g. First family reunion in Tagaytay" /></Field>
           <Field label="Kind">
             <Select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}>

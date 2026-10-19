@@ -63,7 +63,7 @@ export function AdminDashboard(props: {
   return (
     <Page>
       <PageHeader eyebrow="Administrator" title="Family gatekeeper" subtitle="Invite relatives, send sign-in codes, look after the archive and keep everything safe." />
-      <div className="-mx-4 mb-8 flex gap-2 overflow-x-auto px-4 pb-1" role="tablist">
+      <div className="-mx-4 mb-8 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" role="tablist">
         {TABS.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
             className={cn("flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 font-bold transition", tab === t.id ? "bg-forest text-[#fffaf0] dark:text-[#14211a]" : "bg-surface-2 text-ink-soft hover:text-ink")}>
@@ -398,7 +398,7 @@ function Activity() {
         {items.length === 0 && <p className="p-6 text-ink-soft">Nothing yet.</p>}
         {items.map((l) => (
           <div key={l.id} className="p-4">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 break-words">
               <span className="font-bold">{l.actor ?? "System"}</span>
               <span className="flex-1 text-ink-soft">{l.summary ?? l.action}</span>
               <span className="text-xs text-ink-faint" title={new Date(l.createdAt).toLocaleString()}>{timeAgo(l.createdAt)}{l.ip ? ` · ${l.ip}` : ""}</span>
@@ -411,9 +411,10 @@ function Activity() {
                     <tbody>
                       {Object.entries(l.details).map(([k, v]) => (
                         <tr key={k} className="border-t border-line align-top">
-                          <td className="py-1.5 pr-3 font-bold text-ink-soft">{k}</td>
-                          <td className="py-1.5 pr-3 text-danger line-through">{typeof v === "object" && v && "from" in v ? String(JSON.stringify(v.from) ?? "") : ""}</td>
-                          <td className="py-1.5 text-forest">{typeof v === "object" && v && "to" in v ? String(JSON.stringify(v.to) ?? "") : JSON.stringify(v)}</td>
+                          <td className="whitespace-nowrap py-1.5 pr-3 font-bold text-ink-soft">{k}</td>
+                          {/* Raw JSON values (ids, URLs) have no spaces; let them break so the table fits a phone. */}
+                          <td className="py-1.5 pr-3 text-danger line-through wrap-anywhere">{typeof v === "object" && v && "from" in v ? String(JSON.stringify(v.from) ?? "") : ""}</td>
+                          <td className="py-1.5 text-forest wrap-anywhere">{typeof v === "object" && v && "to" in v ? String(JSON.stringify(v.to) ?? "") : JSON.stringify(v)}</td>
                         </tr>
                       ))}
                     </tbody>

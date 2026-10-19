@@ -89,7 +89,8 @@ export function TimelineView({ items, tree, generations }: { items: TimelineItem
       {filtered.length === 0 ? (
         <div className="card p-12 text-center text-ink-soft">The timeline grows as you add birthdays, weddings and milestones to the family tree.</div>
       ) : (
-        <div className="relative">
+        <div className="relative overflow-x-clip">
+          {/* overflow-x-clip: cards slide in sideways and would otherwise widen the page until scrolled into view (clip, unlike hidden, keeps the sticky decade labels working). */}
           <div className="absolute bottom-0 left-5 top-0 w-1 rounded-full bg-gradient-to-b from-meadow via-moss to-forest md:left-1/2 md:-translate-x-1/2" aria-hidden />
           {decades.map(([decade, list]) => (
             <section key={decade} id={`decade-${decade}`} className="relative scroll-mt-24 pb-6">
@@ -145,7 +146,7 @@ export function TimelineView({ items, tree, generations }: { items: TimelineItem
                     </motion.div>
                   );
                   return (
-                    <li key={it.id} className="relative grid grid-cols-[2.5rem_1fr] md:grid-cols-[1fr_3rem_1fr]">
+                    <li key={it.id} className="relative grid grid-cols-[2.5rem_minmax(0,1fr)] md:grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)]">
                       <div className={cn("hidden md:block", left ? "pr-2" : "")}>{left && card}</div>
                       <div className="flex justify-center pt-6">
                         <span className="z-[1] grid size-6 place-items-center rounded-full border-4 border-bg" style={{ background: m.color }} />

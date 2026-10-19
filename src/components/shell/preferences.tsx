@@ -57,7 +57,8 @@ export function ThemeToggle({ className }: { className?: string }) {
 
 export function PreferencePanel() {
   const { prefs, update } = usePrefs();
-  const row = "flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface-2/60 p-4";
+  // flex-wrap: on narrow phones the buttons drop below the label instead of overflowing the row.
+  const row = "flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-2xl border border-line bg-surface-2/60 p-4 [&>span]:whitespace-nowrap";
   const seg = (active: boolean) =>
     cn("rounded-xl px-3.5 py-2 text-sm font-bold transition", active ? "bg-forest text-[#fffaf0] dark:text-[#14211a]" : "text-ink-soft hover:bg-surface");
   return (
