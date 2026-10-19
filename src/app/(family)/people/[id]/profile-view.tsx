@@ -140,7 +140,18 @@ export function ProfileView({ person, tree, media, albums, stories, events, gree
         {canEdit && (
           <label className="absolute right-4 top-4 flex cursor-pointer items-center gap-2 rounded-2xl bg-surface/85 px-3 py-2 text-sm font-bold backdrop-blur hover:bg-surface">
             <ImagePlus className="size-4" /> {coverBusy ? "Uploading…" : "Change cover"}
-            <input type="file" accept="image/*" className="hidden" disabled={!viewer.driveConnected || coverBusy} onChange={(e) => setCover(e.target.files?.[0])} />
+            <input type="file" accept="image/*" className="hidden" disabled={coverBusy}
+              onClick={(e) => {
+                if (!viewer.driveConnected) {
+                  e.preventDefault();
+                  toast("Photo uploads start once the family admin connects Google Drive.", "error");
+                }
+              }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = ""; // let the same file be picked again
+                setCover(file);
+              }} />
           </label>
         )}
       </div>
