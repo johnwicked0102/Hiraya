@@ -21,7 +21,10 @@ const FOLDER_MIME = "application/vnd.google-apps.folder";
 export const SCOPES = ["openid", "email", "https://www.googleapis.com/auth/drive.file"];
 
 export function appUrl() {
-  return (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const raw = (process.env.APP_URL ?? "http://localhost:3000").trim().replace(/\/+$/, "");
+  // Tolerate an APP_URL set without a scheme (e.g. "hirayafam.vercel.app"):
+  // Google rejects a scheme-less redirect_uri as non-compliant (400 invalid_request).
+  return /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 }
 
 function clientCreds() {
