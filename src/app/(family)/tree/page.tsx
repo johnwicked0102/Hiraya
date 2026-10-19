@@ -4,7 +4,8 @@ import { FamilyTree } from "@/components/tree/family-tree";
 
 export const metadata = { title: "Family Tree" };
 
-export default async function TreePage() {
-  const [tree, settings] = await Promise.all([loadTree(), getSettings()]);
-  return <FamilyTree initial={tree} rootPersonId={settings.rootPersonId} />;
+export default async function TreePage({ searchParams }: { searchParams: Promise<{ person?: string }> }) {
+  const [tree, settings, sp] = await Promise.all([loadTree(), getSettings(), searchParams]);
+  const zoomTo = sp.person && tree.persons.some((p) => p.id === sp.person) ? sp.person : null;
+  return <FamilyTree key={zoomTo ?? ""} initial={tree} rootPersonId={settings.rootPersonId} zoomTo={zoomTo} />;
 }

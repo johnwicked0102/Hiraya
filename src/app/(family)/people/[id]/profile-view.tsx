@@ -174,7 +174,7 @@ export function ProfileView({ person, tree, media, albums, stories, events, gree
             {greetingOccasion && (
               <Button variant="gold" onClick={() => setCardOpen(true)}><Gift /> {greetingOccasion === "birthday" ? "Send a birthday card" : "Leave a remembrance"}</Button>
             )}
-            <Button variant="secondary" asChild><Link href={`/tree`}><GitFork /> See in tree</Link></Button>
+            <Button variant="secondary" asChild><Link href={`/tree?person=${p.id}`}><GitFork /> See in tree</Link></Button>
             {canEdit && <Button onClick={() => setEditOpen(true)}><Pencil /> Edit</Button>}
           </div>
         </motion.div>

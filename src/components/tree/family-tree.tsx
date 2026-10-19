@@ -53,7 +53,7 @@ function generationsOf(tree: TreeData) {
   return memo;
 }
 
-function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId: string | null }) {
+function TreeCanvas({ initial, rootPersonId, zoomTo }: { initial: TreeData; rootPersonId: string | null; zoomTo?: string | null }) {
   const viewer = useViewer();
   const toast = useToast();
   const router = useRouter();
@@ -73,11 +73,14 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
   const fitPadding = useMemo(() => ({ top: `${toolbarBottom + 16}px`, x: "12%", bottom: "14%" }) as const, [toolbarBottom]);
 
   const [tree, setTree] = useState(initial);
-  const defaultFocus = viewer.personId && initial.persons.some((p) => p.id === viewer.personId) ? viewer.personId : rootPersonId ?? initial.persons[0]?.id ?? null;
+  const defaultFocus = zoomTo ?? (viewer.personId && initial.persons.some((p) => p.id === viewer.personId) ? viewer.personId : rootPersonId ?? initial.persons[0]?.id ?? null);
   const [focus, setFocus] = useState<string | null>(defaultFocus);
   const [mode, setMode] = useState<ViewMode>("all");
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(zoomTo ?? null);
+  // Opened from a profile's "See in tree": zoom onto that person instead of
+  // fitting the whole tree on the first render.
+  const pendingZoom = useRef(zoomTo ?? null);
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [form, setForm] = useState<{ open: boolean; person?: PersonFull | null; relation?: Relation | null }>({ open: false });
@@ -114,7 +117,12 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
 
   // Re-fit when the view changes.
   useEffect(() => {
-    const t = setTimeout(() => rf.fitView({ padding: fitPadding, duration: 650, maxZoom: 1.1 }), 60);
+    const t = setTimeout(() => {
+      const node = pendingZoom.current ? rf.getNode(pendingZoom.current) : undefined;
+      pendingZoom.current = null;
+      if (node) rf.setCenter(node.position.x + 84, node.position.y + 98, { zoom: 1.05, duration: 700 });
+      else rf.fitView({ padding: fitPadding, duration: 650, maxZoom: 1.1 });
+    }, 60);
     return () => clearTimeout(t);
   }, [mode, focus, rf, collapsed.size, fitPadding]);
 
@@ -248,7 +256,7 @@ function TreeCanvas({ initial, rootPersonId }: { initial: TreeData; rootPersonId
             elementsSelectable
             minZoom={0.08}
             maxZoom={2}
-            fitView
+            fitView={!zoomTo}
             fitViewOptions={{ padding: fitPadding, maxZoom: 1.1 }}
             proOptions={{ hideAttribution: true }}
             onlyRenderVisibleElements={nodes.length > 150}
@@ -537,7 +545,7 @@ function LinkRelativeDialog({ open, onOpenChange, person, people, onLinked }: {
   );
 }
 
-export function FamilyTree(props: { initial: TreeData; rootPersonId: string | null }) {
+export function FamilyTree(props: { initial: TreeData; rootPersonId: string | null; zoomTo?: string | null }) {
   return (
     <ReactFlowProvider>
       <TreeCanvas {...props} />
