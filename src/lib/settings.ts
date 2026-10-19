@@ -34,15 +34,18 @@ const KEY_MAP: Record<string, keyof FamilySettings> = {
 
 /**
  * Values saved by setSetting in commit 08b9dd8 were JSON-encoded twice (e.g. the jsonb
- * string "\"<uuid>\"" or "null"); decode those so they read as intended.
+ * string "\"<uuid>\"" or "null"), and re-saving the admin form while broken
+ * added more layers; decode until the real value comes out.
  */
 function unwrap(v: unknown): unknown {
-  if (typeof v !== "string" || !/^(".*"|null|true|false)$/s.test(v)) return v;
-  try {
-    return JSON.parse(v);
-  } catch {
-    return v;
+  for (let i = 0; i < 10 && typeof v === "string" && /^(".*"|null|true|false)$/s.test(v); i++) {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      break;
+    }
   }
+  return v;
 }
 
 export const getSettings = cache(async (): Promise<FamilySettings> => {
