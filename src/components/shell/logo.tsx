@@ -15,6 +15,27 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Large brand emblem: the Hiraya tree-of-life illustration set in a cream
+ * medallion with a gold ring. The fixed light backing keeps the dark-green
+ * artwork legible on both light and dark surfaces. Use this in hero contexts
+ * (login, setup, splash); use `LogoMark` for small sizes (header, favicon),
+ * where the detailed illustration would smear.
+ */
+export function BrandLogo({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn(
+        "grid size-20 shrink-0 place-items-center overflow-hidden rounded-full bg-[#fffaf0] p-[11%] ring-2 ring-gold shadow-[0_12px_30px_-14px_rgba(20,30,20,0.6)]",
+        className,
+      )}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/hiraya-tree.png" alt="Hiraya" className="size-full object-contain" />
+    </span>
+  );
+}
+
 export function Wordmark({ className, tagline = false }: { className?: string; tagline?: boolean }) {
   return (
     <span className={cn("inline-flex items-center gap-3", className)}>

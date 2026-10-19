@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
-import { LogoMark } from "@/components/shell/logo";
+import { BrandLogo } from "@/components/shell/logo";
 import { api, ApiError } from "@/lib/client";
 
 export function SetupWizard() {
@@ -44,7 +44,7 @@ export function SetupWizard() {
   return (
     <div className="card relative z-10 w-full max-w-lg p-8">
       <div className="mb-6 flex items-center gap-3">
-        <LogoMark className="size-12" />
+        <BrandLogo className="size-14" />
         <div>
           <h1 className="h-display text-3xl">Plant your family tree</h1>
           <p className="text-ink-soft">Create the first administrator for Hiraya.</p>

@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { KeyRound, ShieldCheck, DoorOpen, Send, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
-import { LogoMark } from "@/components/shell/logo";
+import { BrandLogo } from "@/components/shell/logo";
 import { ThemeToggle } from "@/components/shell/preferences";
 import { api, ApiError } from "@/lib/client";
 
@@ -136,7 +136,7 @@ export function LoginGate({ familyName, expired }: { familyName: string; expired
         className="card relative overflow-hidden p-7 sm:p-9"
       >
         <div className="mb-6 flex flex-col items-center text-center">
-          <LogoMark className="size-16" />
+          <BrandLogo className="size-20" />
           <h1 className="h-display mt-3 text-4xl text-ink">Hiraya</h1>
           <p className="mt-1 font-display text-lg italic text-ink-soft">Where Family Stories Live Forever</p>
           <p className="mt-3 rounded-full bg-meadow/25 px-4 py-1 text-sm font-bold text-forest-deep">The {familyName} family home</p>
@@ -210,7 +210,7 @@ export function LoginGate({ familyName, expired }: { familyName: string; expired
           {step === "welcome" && (
             <motion.div key="welcome" className="py-6 text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
               <motion.div initial={{ rotate: -20, scale: 0 }} animate={{ rotate: 0, scale: 1 }} transition={{ type: "spring", stiffness: 160 }}>
-                <LogoMark className="mx-auto size-20" />
+                <BrandLogo className="mx-auto size-24" />
               </motion.div>
               <p className="h-display mt-4 text-3xl">Welcome home</p>
               <p className="text-ink-soft">The gate swings open…</p>
