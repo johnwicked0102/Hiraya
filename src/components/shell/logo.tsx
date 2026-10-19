@@ -16,22 +16,20 @@ export function LogoMark({ className }: { className?: string }) {
 }
 
 /**
- * Large brand emblem: the Hiraya tree-of-life illustration set in a cream
- * medallion with a gold ring. The fixed light backing keeps the dark-green
- * artwork legible on both light and dark surfaces. Use this in hero contexts
- * (login, setup, splash); use `LogoMark` for small sizes (header, favicon),
- * where the detailed illustration would smear.
+ * Large brand emblem: the Hiraya tree-of-life illustration. Two variants are
+ * shipped — the deep-green artwork for light mode and a light-green recolour for
+ * dark mode — and the right one is shown per theme (the `.dark` class on
+ * <html>), so the logo stays legible on either background without a backing
+ * plate. Use this in hero contexts (login, setup, splash); use `LogoMark` for
+ * small sizes (header, favicon), where the detailed illustration would smear.
  */
 export function BrandLogo({ className }: { className?: string }) {
   return (
-    <span
-      className={cn(
-        "grid size-20 shrink-0 place-items-center overflow-hidden rounded-full bg-[#fffaf0] p-[11%] ring-2 ring-gold shadow-[0_12px_30px_-14px_rgba(20,30,20,0.6)]",
-        className,
-      )}
-    >
+    <span className={cn("grid size-20 shrink-0 place-items-center", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/hiraya-tree.png" alt="Hiraya" className="size-full object-contain" />
+      <img src="/brand/hiraya-tree.png" alt="Hiraya" className="col-start-1 row-start-1 size-full object-contain dark:hidden" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/brand/hiraya-tree-dark.png" alt="" aria-hidden className="col-start-1 row-start-1 hidden size-full object-contain dark:block" />
     </span>
   );
 }
