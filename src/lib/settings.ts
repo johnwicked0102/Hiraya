@@ -32,18 +32,31 @@ const KEY_MAP: Record<string, keyof FamilySettings> = {
   root_person_id: "rootPersonId",
 };
 
+/**
+ * Values saved by setSetting in commit 08b9dd8 were JSON-encoded twice (e.g. the jsonb
+ * string "\"<uuid>\"" or "null"); decode those so they read as intended.
+ */
+function unwrap(v: unknown): unknown {
+  if (typeof v !== "string" || !/^(".*"|null|true|false)$/s.test(v)) return v;
+  try {
+    return JSON.parse(v);
+  } catch {
+    return v;
+  }
+}
+
 export const getSettings = cache(async (): Promise<FamilySettings> => {
   const rows = await sql<{ key: string; value: unknown }[]>`select key, value from settings`;
   const out: FamilySettings = { ...DEFAULTS };
   for (const r of rows) {
     const k = KEY_MAP[r.key];
-    if (k) (out as unknown as Record<string, unknown>)[k] = r.value;
+    if (k) (out as unknown as Record<string, unknown>)[k] = unwrap(r.value);
   }
   return out;
 });
 
 export async function setSetting(key: keyof typeof KEY_MAP, value: unknown) {
   await sql`
-    insert into settings (key, value, updated_at) values (${key}, ${JSON.stringify(value ?? null)}::jsonb, now())
+    insert into settings (key, value, updated_at) values (${key}, ${JSON.stringify(value ?? null)}::text::jsonb, now())
     on conflict (key) do update set value = excluded.value, updated_at = now()`;
 }
